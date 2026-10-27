@@ -1,0 +1,42 @@
+<div class="wrap" (mouseleave)="aoSair()">
+  @if (malha(); as m) {
+    <svg [attr.viewBox]="m.viewBox" preserveAspectRatio="xMidYMid meet"
+         role="img" [attr.aria-label]="'Mapa de variação de apoio. ' + formas().length + ' áreas.'">
+      @for (f of formas(); track f.codarea) {
+        <path [attr.d]="f.d" [attr.fill]="f.cor"
+              [class.clicavel]="f.item && podeEntrar()"
+              [class.ativo]="hover()?.cd_ibge === f.codarea"
+              (mousemove)="aoMover($event, f.item)"
+              (click)="aoClicar(f.item)"
+              tabindex="0"
+              (keydown.enter)="aoClicar(f.item)" />
+      }
+    </svg>
+
+    @if (hover(); as h) {
+      <div class="tooltip" [style.left.px]="pos().x" [style.top.px]="pos().y">
+        <strong>{{ h.nome }}</strong>
+        <span class="l">{{ rotuloEsq() }}</span>
+        <span class="v">{{ h.pct_esq_de | number:'1.2-2' }}% → {{ h.pct_esq_para | number:'1.2-2' }}%</span>
+        <span class="l">variação</span>
+        <span class="v forte">{{ h.swing_esq > 0 ? '+' : '' }}{{ h.swing_esq | number:'1.2-2' }} pp</span>
+        <span class="l">peso no total</span>
+        <span class="v">{{ h.peso | number:'1.2-2' }}%</span>
+        @if (podeEntrar()) { <span class="dica">clique para abrir os municípios</span> }
+      </div>
+    }
+  } @else {
+    <p class="vazio">carregando mapa…</p>
+  }
+</div>
+
+<div class="legenda-mapa">
+  <span class="ponta">{{ escala().pontaEsq }}</span>
+  @for (c of escala().classes; track c.rotulo) {
+    <span class="passo" [style.background]="c.cor" [attr.title]="c.rotulo + ' pp'">
+      @if (c.borda) { <span class="rot">{{ c.borda }}</span> }
+    </span>
+  }
+  <span class="ponta">{{ escala().pontaDir }}</span>
+  <span class="unidade">pontos percentuais</span>
+</div>

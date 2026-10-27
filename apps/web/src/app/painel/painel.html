@@ -1,0 +1,180 @@
+<header class="topo">
+  <h1>Apuração presidencial por região</h1>
+  <p class="sub">Dados oficiais do TSE — 2022 e 2026, primeiro e segundo turnos.</p>
+</header>
+
+@if (erro(); as e) { <p class="erro">{{ e }}</p> }
+
+@if (dados(); as d) {
+  <section class="resumo">
+    <div class="tile">
+      <span class="rotulo">{{ comparacao().rotulo }}</span>
+      <span class="numero" [class.pos]="d.swing_nacional >= 0" [class.neg]="d.swing_nacional < 0">
+        {{ d.swing_nacional > 0 ? '+' : '' }}{{ d.swing_nacional | number:'1.2-2' }} pp
+      </span>
+      <span class="nota">variação de {{ rotulos().esq }} — {{ escopo() }}</span>
+    </div>
+    <div class="tile">
+      <span class="rotulo">De</span>
+      <span class="numero neutro">{{ d.pct_esq_de | number:'1.2-2' }}%</span>
+      <span class="nota">{{ rotulos().esq }} em {{ escopo() }}, pleito de partida</span>
+    </div>
+    <div class="tile">
+      <span class="rotulo">Para</span>
+      <span class="numero neutro">{{ d.pct_esq_para | number:'1.2-2' }}%</span>
+      <span class="nota">{{ rotulos().esq }} em {{ escopo() }}, pleito de chegada</span>
+    </div>
+  </section>
+  <p class="descricao">{{ comparacao().descricao }}</p>
+}
+
+<nav class="barra-vista">
+  <div class="abas" role="tablist">
+    <button role="tab" [attr.aria-selected]="vista() === 'mapa'"
+            [class.on]="vista() === 'mapa'" (click)="vista.set('mapa')">Mapa</button>
+    <button role="tab" [attr.aria-selected]="vista() === 'lista'"
+            [class.on]="vista() === 'lista'" (click)="vista.set('lista')">Lista</button>
+  </div>
+  @if (vista() === 'mapa') {
+    <div class="trilha">
+      <button class="elo" [disabled]="!uf()" (click)="voltarAoBrasil()">Brasil</button>
+      @if (uf(); as u) { <span class="sep">›</span><span class="atual">{{ u }}</span> }
+    </div>
+  }
+</nav>
+
+<section class="controles">
+  <label>
+    <span>Comparação</span>
+    <select [ngModel]="comparacao()" (ngModelChange)="comparacao.set($event)">
+      @for (c of comparacoes; track c.rotulo) { <option [ngValue]="c">{{ c.rotulo }}</option> }
+    </select>
+  </label>
+
+  @if (vista() === 'lista') {
+    <label>
+      <span>Nível</span>
+      <select [ngModel]="nivelLista()" (ngModelChange)="nivelLista.set($event)">
+        @for (n of niveis; track n.v) { <option [value]="n.v">{{ n.r }}</option> }
+      </select>
+    </label>
+
+    <label>
+      <span>Região</span>
+      <select [ngModel]="regiao()" (ngModelChange)="trocarRegiao($event)">
+        <option [ngValue]="null">Todas</option>
+        @for (r of meta()?.regioes ?? []; track r) { <option [ngValue]="r">{{ r }}</option> }
+      </select>
+    </label>
+  }
+
+  <label>
+    <span>Estado</span>
+    <select [ngModel]="uf()" (ngModelChange)="uf.set($event)">
+      <option [ngValue]="null">Todos</option>
+      @for (u of ufsVisiveis(); track u.uf) { <option [ngValue]="u.uf">{{ u.uf }}</option> }
+    </select>
+  </label>
+
+  <label>
+    <span>Ordenar por</span>
+    <select [ngModel]="ordenarPor()" (ngModelChange)="ordenarPor.set($event)">
+      <option value="swing">Variação (pp)</option>
+      <option value="contribuicao">Contribuição nacional</option>
+      <option value="nome">Nome</option>
+    </select>
+  </label>
+
+  <label>
+    <span>Mostrar</span>
+    <select [ngModel]="limite()" (ngModelChange)="limite.set(+$event)">
+      @for (n of [20, 40, 100, 500]; track n) { <option [value]="n">{{ n }} linhas</option> }
+    </select>
+  </label>
+</section>
+
+@if (vista() === 'mapa') {
+  <app-mapa [malha]="malha()" [valores]="porCodigo()"
+            [rotuloEsq]="rotulos().esq" [rotuloDir]="rotulos().dir"
+            [escuro]="escuro()" [podeEntrar]="!uf()"
+            (entrar)="entrarNoMapa($event)" />
+}
+
+@if (vista() === 'lista') {
+<section class="legenda">
+  <span class="chave"><i class="amostra esq"></i> {{ rotulos().esq }} ganha pontos</span>
+  <span class="chave"><i class="amostra dir"></i> {{ rotulos().dir }} ganha pontos</span>
+  <span class="chave nota-escala">
+    escala {{ divergente() ? '±' : '0 a ' }}{{ escala() | number:'1.1-1' }} pp
+  </span>
+</section>
+
+}
+
+@if (carregando()) { <p class="carregando">carregando…</p> }
+
+@if (itens().length && vista() === 'lista') {
+  <section class="grafico">
+    @for (i of itens(); track i.id) {
+      <div class="linha" [attr.title]="i.nome + ' — ' + rotulos().esq + ': '
+           + (i.pct_esq_de | number:'1.2-2') + '% → ' + (i.pct_esq_para | number:'1.2-2') + '%'">
+        <span class="nome">{{ i.nome }}</span>
+        <div class="trilho">
+          @if (divergente()) { <span class="zero"></span> }
+          <span class="barra" [class.pos]="i.swing_esq >= 0" [class.neg]="i.swing_esq < 0"
+                [style.left.%]="offset(i.swing_esq)" [style.width.%]="largura(i.swing_esq)"></span>
+        </div>
+        <span class="valor" [class.pos]="i.swing_esq >= 0" [class.neg]="i.swing_esq < 0">
+          {{ i.swing_esq > 0 ? '+' : '' }}{{ i.swing_esq | number:'1.2-2' }}
+        </span>
+      </div>
+    }
+  </section>
+
+}
+
+@if (itens().length) {
+  <details class="tabela-wrap">
+    <summary>Ver como tabela ({{ itens().length }} linhas)</summary>
+    <div class="rolagem">
+      <table>
+        <caption>Variação de apoio — {{ comparacao().rotulo }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Recorte</th>
+            <th scope="col">{{ rotulos().esq }} de</th>
+            <th scope="col">{{ rotulos().esq }} para</th>
+            <th scope="col">Variação (pp)</th>
+            <th scope="col">Peso no total</th>
+            <th scope="col">Contribuição</th>
+            <th scope="col">Δ comparecimento</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (i of itens(); track i.id) {
+            <tr>
+              <th scope="row">{{ i.nome }}</th>
+              <td>{{ i.pct_esq_de | number:'1.2-2' }}%</td>
+              <td>{{ i.pct_esq_para | number:'1.2-2' }}%</td>
+              <td [class.pos]="i.swing_esq >= 0" [class.neg]="i.swing_esq < 0">
+                {{ i.swing_esq > 0 ? '+' : '' }}{{ i.swing_esq | number:'1.2-2' }}
+              </td>
+              <td>{{ i.peso | number:'1.2-2' }}%</td>
+              <td>{{ i.contribuicao > 0 ? '+' : '' }}{{ i.contribuicao | number:'1.3-3' }} pp</td>
+              <td>{{ i.delta_comparecimento > 0 ? '+' : ''
+                   }}{{ i.delta_comparecimento | number:'1.2-2' }}%</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </details>
+}
+
+<footer class="rodape">
+  <p>
+    <strong>Variação</strong> é a diferença em pontos percentuais do candidato entre os
+    dois pleitos, sobre votos válidos. <strong>Contribuição</strong> é essa variação
+    ponderada pelo peso do recorte no eleitorado — é ela que soma para o número nacional.
+  </p>
+</footer>

@@ -1,0 +1,109 @@
+/* Tokens vêm de src/styles.css (:root) — aqui só consumo por papel. */
+:host {
+  display: block;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+  background: var(--surface-0);
+  color: var(--text-primary);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+h1 { font-size: 1.45rem; font-weight: 600; margin: 0 0 .2rem; letter-spacing: -.01em; }
+.sub, .descricao { color: var(--text-secondary); margin: 0; }
+.sub { font-size: .9rem; }
+.descricao { font-size: .9rem; margin: -.4rem 0 1.4rem; }
+.erro { background: var(--surface-2); border-left: 3px solid var(--esq);
+        padding: .7rem .9rem; border-radius: 4px; color: var(--text-primary); }
+.carregando { color: var(--text-muted); font-size: .85rem; }
+
+/* --- tiles --- */
+.resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: .75rem; margin: 1.5rem 0 1rem; }
+.tile { background: var(--surface-1); border: 1px solid var(--borda);
+        border-radius: 8px; padding: .85rem 1rem; display: flex; flex-direction: column; gap: .15rem; }
+.rotulo { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em;
+          color: var(--text-muted); }
+.numero { font-size: 1.75rem; font-weight: 600; font-variant-numeric: tabular-nums;
+          letter-spacing: -.02em; }
+.numero.neutro { color: var(--text-primary); }
+.nota { font-size: .78rem; color: var(--text-secondary); }
+
+/* --- controles --- */
+.controles { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: end;
+             padding: .9rem 1rem; background: var(--surface-1);
+             border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 1rem; }
+.controles label { display: flex; flex-direction: column; gap: .25rem; font-size: .78rem;
+                   color: var(--text-secondary); }
+.controles select { font: inherit; font-size: .88rem; padding: .35rem .5rem;
+                    background: var(--surface-0); color: var(--text-primary);
+                    border: 1px solid var(--borda); border-radius: 5px; min-width: 9rem; }
+.controles select:focus-visible { outline: 2px solid var(--dir); outline-offset: 1px; }
+
+/* --- legenda --- */
+.legenda { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0 0 .6rem;
+           font-size: .82rem; color: var(--text-secondary); }
+.chave { display: inline-flex; align-items: center; gap: .4rem; }
+.amostra { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+.amostra.esq { background: var(--esq); }
+.amostra.dir { background: var(--dir); }
+.nota-escala { color: var(--text-muted); margin-left: auto; }
+
+/* --- barras divergentes --- */
+.grafico { border: 1px solid var(--borda); border-radius: 8px; overflow: hidden;
+           background: var(--surface-1); }
+.linha { display: grid; grid-template-columns: minmax(7rem, 12rem) 1fr 4.2rem;
+         align-items: center; gap: .6rem; padding: .18rem .8rem; }
+.linha:hover { background: var(--surface-2); }
+.nome { font-size: .84rem; color: var(--text-primary); overflow: hidden;
+        text-overflow: ellipsis; white-space: nowrap; }
+.trilho { position: relative; height: 16px; }
+/* midpoint neutro do diverging: a linha do zero */
+.zero { position: absolute; left: 50%; top: -1px; bottom: -1px; width: 1px;
+        background: var(--grade); }
+.barra { position: absolute; top: 2px; bottom: 2px; min-width: 2px;
+         /* ponta arredondada só na extremidade longe do zero */
+         box-shadow: 0 0 0 2px var(--surface-1); }
+/* ponta arredondada so na extremidade longe da ancora (zero ou borda) */
+.barra.pos { background: var(--esq); border-radius: 0 4px 4px 0; }
+.barra.neg { background: var(--dir); border-radius: 4px 0 0 4px; }
+.valor { font-size: .82rem; font-variant-numeric: tabular-nums; text-align: right;
+         color: var(--text-secondary); }
+
+/* o valor usa tinta de texto; a cor fica na barra ao lado */
+.pos, .neg { color: var(--text-primary); }
+.numero.pos { color: var(--esq); }
+.numero.neg { color: var(--dir); }
+
+/* --- tabela --- */
+.tabela-wrap { margin-top: 1.2rem; }
+summary { cursor: pointer; font-size: .85rem; color: var(--text-secondary);
+          padding: .4rem 0; }
+.rolagem { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .82rem; margin-top: .5rem; }
+caption { text-align: left; color: var(--text-muted); font-size: .8rem;
+          padding-bottom: .4rem; }
+th, td { padding: .35rem .6rem; border-bottom: 1px solid var(--grade);
+         text-align: right; font-variant-numeric: tabular-nums; }
+thead th { color: var(--text-muted); font-weight: 500; text-align: right;
+           border-bottom: 1px solid var(--borda); white-space: nowrap; }
+th[scope="row"], thead th:first-child { text-align: left; font-weight: 500; }
+
+.rodape { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--grade); }
+.rodape p { font-size: .8rem; color: var(--text-muted); margin: 0; }
+
+/* --- barra de vista + trilha de navegação --- */
+.barra-vista { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+               margin-bottom: .8rem; }
+.abas { display: inline-flex; border: 1px solid var(--borda); border-radius: 6px;
+        overflow: hidden; }
+.abas button { font: inherit; font-size: .84rem; padding: .3rem .9rem; border: 0;
+               background: var(--surface-1); color: var(--text-secondary); cursor: pointer; }
+.abas button.on { background: var(--dir); color: #fff; }
+.abas button:focus-visible { outline: 2px solid var(--dir); outline-offset: -2px; }
+.trilha { display: flex; align-items: center; gap: .4rem; font-size: .84rem; }
+.elo { font: inherit; background: none; border: 0; padding: 0; cursor: pointer;
+       color: var(--dir); text-decoration: underline; }
+.elo:disabled { color: var(--text-muted); cursor: default; text-decoration: none; }
+.sep { color: var(--text-muted); }
+.atual { font-weight: 600; }

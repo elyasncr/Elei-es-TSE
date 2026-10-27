@@ -1,0 +1,46 @@
+/* Tokens de tema. Definidos no :root para que o tema troque em um lugar só;
+   os componentes consomem por papel (--esq, --surface-1), nunca hex cru.
+   Paleta validada com o validador da skill dataviz (light e dark, all-pairs). */
+:root {
+  color-scheme: light;
+  --surface-0: #ffffff;
+  --surface-1: #fcfcfb;
+  --surface-2: #f3f2ef;
+  --borda:     #e2e0da;
+  --grade:     #e8e6e0;
+  --text-primary:   #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted:     #76746e;
+  --esq: #e34948;   /* polo 1 do diverging */
+  --dir: #2a78d6;   /* polo 2 do diverging */
+  --neutro: #f0efec;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-0: #141413;
+    --surface-1: #1a1a19;
+    --surface-2: #232321;
+    --borda:     #343431;
+    --grade:     #2b2b28;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #94928a;
+    --esq: #e66767;
+    --dir: #3987e5;
+    --neutro: #383835;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-0: #141413; --surface-1: #1a1a19; --surface-2: #232321;
+  --borda: #343431; --grade: #2b2b28;
+  --text-primary: #ffffff; --text-secondary: #c3c2b7; --text-muted: #94928a;
+  --esq: #e66767; --dir: #3987e5; --neutro: #383835;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--surface-0); color: var(--text-primary); }
