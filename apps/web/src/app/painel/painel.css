@@ -108,3 +108,9 @@ th[scope="row"], thead th:first-child { text-align: left; font-weight: 500; }
 .elo:disabled { color: var(--text-muted); cursor: default; text-decoration: none; }
 .sep { color: var(--text-muted); }
 .atual { font-weight: 600; }
+
+.aviso-mono { font-size: .8rem; color: var(--text-secondary);
+              background: var(--surface-1); border: 1px solid var(--borda);
+              border-left: 3px solid var(--text-muted);
+              border-radius: 0 5px 5px 0; padding: .5rem .7rem; margin: 0 0 .7rem; }
+.aviso-mono strong { color: var(--text-primary); font-weight: 600; }

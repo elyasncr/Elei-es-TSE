@@ -102,6 +102,13 @@
   </label>
 </section>
 
+@if (vista() === 'mapa' && monocromatico(); as aviso) {
+  <p class="aviso-mono">
+    Mapa em uma cor só: <strong>{{ aviso }}</strong>, então não há os dois lados
+    para contrastar. Os tons distinguem a intensidade.
+  </p>
+}
+
 @if (vista() === 'mapa') {
   <app-mapa [malha]="malha()" [valores]="porCodigo()"
             [rotuloEsq]="rotulos().esq" [rotuloDir]="rotulos().dir"

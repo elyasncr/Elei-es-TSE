@@ -223,14 +223,22 @@ primeira versão ficava em 2,2:1 e os estados perto da divisa sumiam no preto.
 **Duas perguntas diferentes, dois mapas.** O seletor "Pintar o mapa por" alterna
 entre:
 
-- **Variação entre os pleitos** — para onde o eleitorado se moveu. Centro em 0.
-- **Resultado (chegada / partida)** — quem está à frente. Centro em 50%.
+- **Quem venceu (chegada / partida)** — quem está à frente. Centro em 50%. **Padrão.**
+- **Variação entre os dois pleitos** — para onde o eleitorado se moveu. Centro em 0.
+
+O padrão é "quem venceu" porque é a leitura que se espera de um mapa eleitoral.
+Com a variação como padrão, a tela abria inteira vermelha e parecia defeito de
+cor — quando era o dado.
 
 Elas podem ter respostas opostas no mesmo estado, e isso não é contradição. No
 1º→2º turno de 2026 a variação foi positiva para Lula nos **28** recortes
 (+4,50 a +9,28 pp), e ainda assim Flávio venceu em **14 estados**: em SP, Lula
 subiu +7,96 pp e fechou em 46,15%. Um mapa só de variação fica inteiro vermelho
 e esconde exatamente isso.
+
+**Aviso quando o mapa fica de uma cor só.** Se a métrica escolhida não cruza a
+divisa, uma tarja explica qual é o fato por trás ("Lula ganhou pontos em todos os
+recortes") em vez de deixar o usuário achar que a escala quebrou.
 
 **Sem degrau neutro quando o centro é uma divisa.** Na variação, "perto de zero"
 é uma categoria real (não mudou), então existe um degrau cinza. No resultado, 50%

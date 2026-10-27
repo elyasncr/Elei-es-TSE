@@ -37,13 +37,31 @@ export class Painel {
   ordenarPor = signal<'swing' | 'contribuicao' | 'nome'>('swing');
   limite = signal(40);
   escuro = signal(false);
-  metrica = signal<Metrica>('variacao');
+  metrica = signal<Metrica>('chegada');
 
   readonly metricas: { v: Metrica; r: string }[] = [
-    { v: 'variacao', r: 'Variação entre os pleitos' },
-    { v: 'chegada', r: 'Resultado — pleito de chegada' },
-    { v: 'partida', r: 'Resultado — pleito de partida' },
+    { v: 'chegada', r: 'Quem venceu — pleito de chegada' },
+    { v: 'partida', r: 'Quem venceu — pleito de partida' },
+    { v: 'variacao', r: 'Variação entre os dois pleitos' },
   ];
+
+  /** Aviso honesto quando a métrica escolhida não cruza a divisa: o mapa sai de
+   *  uma cor só, e isso é o dado, não falta de contraste. */
+  monocromatico = computed(() => {
+    const itens = this.dados()?.itens ?? [];
+    if (itens.length < 2) return null;
+    if (this.metrica() === 'variacao') {
+      const v = itens.map(i => i.swing_esq);
+      if (v.every(x => x > 0)) return `${this.rotulos().esq} ganhou pontos em todos os recortes`;
+      if (v.every(x => x < 0)) return `${this.rotulos().dir} ganhou pontos em todos os recortes`;
+      return null;
+    }
+    const campo = this.metrica() === 'chegada' ? 'pct_esq_para' : 'pct_esq_de';
+    const v = itens.map(i => i[campo] as number);
+    if (v.every(x => x > 50)) return `${this.rotulos().esq} venceu em todos os recortes`;
+    if (v.every(x => x < 50)) return `${this.rotulos().dir} venceu em todos os recortes`;
+    return null;
+  });
 
   /** No mapa o nível é consequência do zoom: Brasil → UFs, dentro de uma UF → municípios. */
   nivel = computed<Nivel>(() =>
