@@ -114,3 +114,17 @@ th[scope="row"], thead th:first-child { text-align: left; font-weight: 500; }
               border-left: 3px solid var(--text-muted);
               border-radius: 0 5px 5px 0; padding: .5rem .7rem; margin: 0 0 .7rem; }
 .aviso-mono strong { color: var(--text-primary); font-weight: 600; }
+
+/* cabeçalho de grupo na tabela: cada candidato tem seu bloco de colunas */
+.grupos .grupo { text-align: center; font-size: .72rem; letter-spacing: .03em;
+                 text-transform: uppercase; padding-bottom: .2rem;
+                 border-bottom: 2px solid currentColor; }
+.grupos .grupo.esq { color: var(--esq); }
+.grupos .grupo.dir { color: var(--dir); }
+.grupos td { border: 0; }
+table td.sep { border-left: 1px solid var(--grade); }
+table td.var { font-weight: 600; color: var(--text-primary); }
+.rotulo .amostra { width: 9px; height: 9px; border-radius: 2px; display: inline-block;
+                   margin-right: .35rem; vertical-align: baseline; }
+.rotulo .amostra.esq { background: var(--esq); }
+.rotulo .amostra.dir { background: var(--dir); }

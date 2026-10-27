@@ -250,6 +250,25 @@ estados saíam cinza; sem ela, os 27 se dividem em 14 azuis e 13 vermelhos.
 recalculada sobre os municípios paranaenses (±10,4 pp), não sobre o Brasil
 (±3,3 pp). Sem isso o estado inteiro sairia de uma cor só.
 
+### As duas variações não são simétricas
+
+A tabela e os tiles mostram a variação dos **dois** candidatos, não só de um —
+e elas não são o negativo uma da outra sempre que o pleito de partida tem outros
+candidatos.
+
+No 1º→2º turno de 2026: **Lula +6,62 pp e Flávio +1,19 pp — os dois subiram.**
+Os 7,81% de "outros" do 1º turno se redistribuíram, e a soma das duas variações
+é exatamente esses 7,81%. Por estado o quadro muda: em GO o Flávio cresceu
++6,06 pp; em AL ele encolheu −1,22 pp.
+
+Só numa comparação 2º-turno-contra-2º-turno (2022 → 2026) a soma dá zero, porque
+aí os dois percentuais são complementares. A interface diz qual dos dois casos
+está em tela.
+
+Consequência para a legenda do mapa: na métrica de **variação** os dois polos são
+o *mesmo* candidato ("Lula perde" / "Lula ganha"), não dois candidatos. Rotulá-los
+como dois só parece certo no caso soma-zero.
+
 ### De-para TSE ↔ IBGE
 
 As malhas são chaveadas por código IBGE; o TSE usa código próprio. O cruzamento

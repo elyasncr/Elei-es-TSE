@@ -25,6 +25,7 @@ export interface LinhaSwing {
   id: string; nome: string; uf: string | null; regiao: string | null;
   cd_ibge: string | null;
   pct_esq_de: number; pct_esq_para: number; swing_esq: number;
+  pct_dir_de: number; pct_dir_para: number; swing_dir: number;
   validos_de: number; validos_para: number;
   votos_esq_de: number; votos_esq_para: number;
   delta_comparecimento: number;
@@ -37,6 +38,8 @@ export interface ItemDecomposicao extends LinhaSwing {
 export interface Decomposicao {
   swing_nacional: number;
   pct_esq_de: number; pct_esq_para: number;
+  swing_nacional_dir: number;
+  pct_dir_de: number; pct_dir_para: number;
   soma_contribuicoes: number;
   itens: ItemDecomposicao[];
 }
@@ -54,4 +57,4 @@ export interface Comparacao {
 /** O que o mapa pinta. Variação responde "para onde o eleitorado se moveu";
  *  resultado responde "quem está na frente" — são perguntas diferentes e
  *  podem ter respostas opostas no mesmo recorte. */
-export type Metrica = 'variacao' | 'chegada' | 'partida';
+export type Metrica = 'variacao' | 'variacao_dir' | 'chegada' | 'partida';

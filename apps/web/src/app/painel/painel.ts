@@ -42,18 +42,32 @@ export class Painel {
   readonly metricas: { v: Metrica; r: string }[] = [
     { v: 'chegada', r: 'Quem venceu — pleito de chegada' },
     { v: 'partida', r: 'Quem venceu — pleito de partida' },
-    { v: 'variacao', r: 'Variação entre os dois pleitos' },
+    { v: 'variacao', r: 'Variação — primeiro candidato' },
+    { v: 'variacao_dir', r: 'Variação — adversário' },
   ];
+
+  /** Por que a soma das duas variações não é zero. */
+  somaExplica = computed(() => {
+    const d = this.dados(); if (!d) return '';
+    const soma = d.swing_nacional + d.swing_nacional_dir;
+    if (Math.abs(soma) < 0.05) {
+      return 'os dois pleitos têm os mesmos dois candidatos, então um sobe o que o outro desce';
+    }
+    return `é a fatia que os demais candidatos tinham no pleito de partida e se `
+         + `redistribuiu — por isso os dois podem subir`;
+  });
 
   /** Aviso honesto quando a métrica escolhida não cruza a divisa: o mapa sai de
    *  uma cor só, e isso é o dado, não falta de contraste. */
   monocromatico = computed(() => {
     const itens = this.dados()?.itens ?? [];
     if (itens.length < 2) return null;
-    if (this.metrica() === 'variacao') {
-      const v = itens.map(i => i.swing_esq);
-      if (v.every(x => x > 0)) return `${this.rotulos().esq} ganhou pontos em todos os recortes`;
-      if (v.every(x => x < 0)) return `${this.rotulos().dir} ganhou pontos em todos os recortes`;
+    if (this.metrica() === 'variacao' || this.metrica() === 'variacao_dir') {
+      const dir = this.metrica() === 'variacao_dir';
+      const quem = dir ? this.rotulos().dir : this.rotulos().esq;
+      const v = itens.map(i => dir ? i.swing_dir : i.swing_esq);
+      if (v.every(x => x > 0)) return `${quem} ganhou pontos em todos os recortes`;
+      if (v.every(x => x < 0)) return `${quem} perdeu pontos em todos os recortes`;
       return null;
     }
     const campo = this.metrica() === 'chegada' ? 'pct_esq_para' : 'pct_esq_de';

@@ -32,6 +32,8 @@ export class Mapa {
                                centro: 50, sufixo: '%', neutro: false };
       case 'partida': return { campo: (i: ItemDecomposicao) => i.pct_esq_de,
                                centro: 50, sufixo: '%', neutro: false };
+      case 'variacao_dir': return { campo: (i: ItemDecomposicao) => i.swing_dir,
+                                    centro: 0, sufixo: 'pp', neutro: true };
       default:        return { campo: (i: ItemDecomposicao) => i.swing_esq,
                                centro: 0, sufixo: 'pp', neutro: true };
     }
@@ -39,9 +41,27 @@ export class Mapa {
 
   escala = computed(() => {
     const { campo, centro, sufixo, neutro } = this.cfg();
-    return escalaAuto([...this.valores().values()].map(campo),
-                      this.escuro(), this.rotuloEsq(), this.rotuloDir(),
-                      centro, sufixo, neutro);
+    const m = this.metrica();
+    const vals = [...this.valores().values()].map(campo);
+
+    if (m === 'chegada' || m === 'partida') {
+      return escalaAuto(vals, this.escuro(), this.rotuloEsq(), this.rotuloDir(),
+                        centro, sufixo, neutro);
+    }
+
+    // Variação: os dois polos são o MESMO candidato, perdendo ou ganhando.
+    // Para o adversário os valores são negados, só para que o ganho dele caia
+    // no ramp azul — a cor segue o candidato em todo o app.
+    const dir = m === 'variacao_dir';
+    const quem = dir ? this.rotuloDir() : this.rotuloEsq();
+    const e = escalaAuto(dir ? vals.map(v => -v) : vals, this.escuro(),
+                         this.rotuloEsq(), this.rotuloDir(), centro, sufixo, neutro,
+                         dir ? [`${quem} ganha`, `${quem} perde`]
+                             : [`${quem} perde`, `${quem} ganha`]);
+    return dir
+      ? { ...e, cor: (v: number | null | undefined) =>
+            e.cor(v === null || v === undefined ? v : -v) }
+      : e;
   });
 
   unidade = computed(() => this.cfg().sufixo === '%'

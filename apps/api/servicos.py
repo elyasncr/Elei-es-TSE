@@ -50,14 +50,19 @@ def swing(ano_de: int, turno_de: int, ano_para: int, turno_para: int,
 
     j = a.merge(b, on=chaves, suffixes=("_de", "_para"))
     j["swing_esq"] = (j.pct_esq_para - j.pct_esq_de).round(3)
+    # Entre 1o e 2o turno os dois podem subir: os votos de quem foi eliminado
+    # se redistribuem, então swing_esq + swing_dir = fatia de "outros" que
+    # desapareceu. Só num 2o-turno-contra-2o-turno a soma é zero.
+    j["swing_dir"] = (j.pct_dir_para - j.pct_dir_de).round(3)
     j["delta_comparecimento"] = (
         100 * (j.comparecimento_para - j.comparecimento_de)
         / j.comparecimento_de.where(j.comparecimento_de > 0)).round(3)
     j = j.rename(columns={"esq_de": "votos_esq_de", "esq_para": "votos_esq_para"})
 
-    cols = chaves + ["pct_esq_de", "pct_esq_para", "swing_esq", "validos_de",
-                     "validos_para", "votos_esq_de", "votos_esq_para",
-                     "delta_comparecimento"]
+    cols = chaves + ["pct_esq_de", "pct_esq_para", "swing_esq",
+                     "pct_dir_de", "pct_dir_para", "swing_dir",
+                     "validos_de", "validos_para", "votos_esq_de",
+                     "votos_esq_para", "delta_comparecimento"]
     for c in ("uf", "regiao", "cd_ibge"):
         if c not in cols:
             j[c] = None
@@ -80,10 +85,17 @@ def decomposicao(ano_de: int, turno_de: int, ano_para: int, turno_para: int,
 
     nac_de = 100 * s.votos_esq_de.sum() / s.validos_de.sum()
     nac_para = 100 * s.votos_esq_para.sum() / s.validos_para.sum()
+    # o adversário vem das médias ponderadas, não de 100 - esq: no 1o turno
+    # existem outros candidatos e os dois percentuais não são complementares
+    dir_de = (s.pct_dir_de * s.validos_de).sum() / s.validos_de.sum()
+    dir_para = (s.pct_dir_para * s.validos_para).sum() / s.validos_para.sum()
     return {
         "swing_nacional": round(nac_para - nac_de, 3),
         "pct_esq_de": round(nac_de, 3),
         "pct_esq_para": round(nac_para, 3),
+        "swing_nacional_dir": round(dir_para - dir_de, 3),
+        "pct_dir_de": round(dir_de, 3),
+        "pct_dir_para": round(dir_para, 3),
         "soma_contribuicoes": round(s.contribuicao.sum(), 3),
         "itens": registros(s.sort_values("contribuicao"), list(s.columns)),
     }

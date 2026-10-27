@@ -24,6 +24,12 @@
         <span class="v" [class.forte]="metrica() === 'variacao'">
           {{ h.swing_esq > 0 ? '+' : '' }}{{ h.swing_esq | number:'1.2-2' }} pp
         </span>
+        <span class="l">{{ rotuloDir() }}</span>
+        <span class="v">{{ h.pct_dir_de | number:'1.2-2' }}% → {{ h.pct_dir_para | number:'1.2-2' }}%</span>
+        <span class="l">variação</span>
+        <span class="v" [class.forte]="metrica() === 'variacao_dir'">
+          {{ h.swing_dir > 0 ? '+' : '' }}{{ h.swing_dir | number:'1.2-2' }} pp
+        </span>
         <span class="l">vencedor ali</span>
         <span class="v">{{ h.pct_esq_para > 50 ? rotuloEsq() : rotuloDir() }}</span>
         <span class="l">peso no total</span>

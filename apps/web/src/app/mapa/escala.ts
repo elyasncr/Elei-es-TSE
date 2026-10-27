@@ -41,7 +41,14 @@ export interface Escala {
 export function escalaAuto(valores: number[], escuro: boolean,
                            rotEsq: string, rotDir: string,
                            centro = 0, sufixo = 'pp',
-                           bandaNeutra = true): Escala {
+                           bandaNeutra = true,
+                           pontas?: [string, string]): Escala {
+  // `pontas` nomeia explicitamente os dois extremos. Importa porque os polos
+  // nem sempre são dois candidatos: na variação de UM candidato eles são
+  // "fulano perde" / "fulano ganha". Tratá-los como dois candidatos só parece
+  // certo quando a soma é zero (2o turno contra 2o turno) — entre 1o e 2o
+  // turno, um subir não implica o outro descer.
+  const [pEsq, pDir] = pontas ?? [`${rotDir} à frente`, `${rotEsq} à frente`];
   // com centro 0 o sinal é informação ("+2,3 pp"); com centro 50 o número já é
   // um percentual e o "+" só polui.
   const fmt = (x: number) =>
@@ -80,9 +87,11 @@ export function escalaAuto(valores: number[], escuro: boolean,
       borda: i < ramp.length - 1 ? fmt(limites[i]) : null,
     }));
     // na sequencial as pontas da legenda são os extremos, não dois candidatos
-    const forte = max > centro ? rotEsq : rotDir;
+    // de um lado só: as pontas são "menos"/"mais" do mesmo extremo
+    const base = pontas ? (max > centro ? pDir : pEsq)
+                        : `${max > centro ? rotEsq : rotDir} à frente`;
     return { cor, classes, divergente: false,
-             pontaEsq: `menos ${forte}`, pontaDir: `mais ${forte}` };
+             pontaEsq: `${base}: menos`, pontaDir: `${base}: mais` };
   }
 
   // divergente simétrica em torno do centro: mesma amplitude dos dois lados
@@ -109,8 +118,7 @@ export function escalaAuto(valores: number[], escuro: boolean,
       { cor: seqEsq[3], rotulo: `${b(c1)} a ${b(c2)}`, borda: b(c2) },
       { cor: seqEsq[4], rotulo: `${b(c2)} ou mais`, borda: null },
     ];
-    return { cor, classes, divergente: true,
-             pontaEsq: `${rotDir} à frente`, pontaDir: `${rotEsq} à frente` };
+    return { cor, classes, divergente: true, pontaEsq: pEsq, pontaDir: pDir };
   }
 
   const cortes = [0.12, 0.4, 0.72].map(f => +(f * amp).toFixed(2));
@@ -131,6 +139,5 @@ export function escalaAuto(valores: number[], escuro: boolean,
     { cor: seqEsq[3], rotulo: `${b(c1)} a ${b(c2)}`, borda: b(c2) },
     { cor: seqEsq[4], rotulo: `${b(c2)} ou mais`, borda: null },
   ];
-  return { cor, classes, divergente: true,
-           pontaEsq: `${rotDir} à frente`, pontaDir: `${rotEsq} à frente` };
+  return { cor, classes, divergente: true, pontaEsq: pEsq, pontaDir: pDir };
 }

@@ -8,21 +8,26 @@
 @if (dados(); as d) {
   <section class="resumo">
     <div class="tile">
-      <span class="rotulo">{{ comparacao().rotulo }}</span>
-      <span class="numero" [class.pos]="d.swing_nacional >= 0" [class.neg]="d.swing_nacional < 0">
+      <span class="rotulo"><i class="amostra esq"></i>{{ rotulos().esq }}</span>
+      <span class="numero pos">
         {{ d.swing_nacional > 0 ? '+' : '' }}{{ d.swing_nacional | number:'1.2-2' }} pp
       </span>
-      <span class="nota">variação de {{ rotulos().esq }} — {{ escopo() }}</span>
+      <span class="nota">{{ d.pct_esq_de | number:'1.2-2' }}% → {{ d.pct_esq_para | number:'1.2-2' }}%</span>
     </div>
     <div class="tile">
-      <span class="rotulo">De</span>
-      <span class="numero neutro">{{ d.pct_esq_de | number:'1.2-2' }}%</span>
-      <span class="nota">{{ rotulos().esq }} em {{ escopo() }}, pleito de partida</span>
+      <span class="rotulo"><i class="amostra dir"></i>{{ rotulos().dir }}</span>
+      <span class="numero neg">
+        {{ d.swing_nacional_dir > 0 ? '+' : '' }}{{ d.swing_nacional_dir | number:'1.2-2' }} pp
+      </span>
+      <span class="nota">{{ d.pct_dir_de | number:'1.2-2' }}% → {{ d.pct_dir_para | number:'1.2-2' }}%</span>
     </div>
     <div class="tile">
-      <span class="rotulo">Para</span>
-      <span class="numero neutro">{{ d.pct_esq_para | number:'1.2-2' }}%</span>
-      <span class="nota">{{ rotulos().esq }} em {{ escopo() }}, pleito de chegada</span>
+      <span class="rotulo">Soma das variações</span>
+      <span class="numero neutro">
+        {{ (d.swing_nacional + d.swing_nacional_dir) > 0 ? '+' : ''
+        }}{{ d.swing_nacional + d.swing_nacional_dir | number:'1.2-2' }} pp
+      </span>
+      <span class="nota">{{ somaExplica() }}</span>
     </div>
   </section>
   <p class="descricao">{{ comparacao().descricao }}</p>
@@ -154,16 +159,29 @@
     <summary>Ver como tabela ({{ itens().length }} linhas)</summary>
     <div class="rolagem">
       <table>
-        <caption>Variação de apoio — {{ comparacao().rotulo }}</caption>
+        <caption>
+          Variação de apoio — {{ comparacao().rotulo }}.
+          Soma das variações: {{ (dados()!.swing_nacional + dados()!.swing_nacional_dir)
+            | number:'1.2-2' }} pp — {{ somaExplica() }}.
+        </caption>
         <thead>
+          <tr class="grupos">
+            <td></td>
+            <th scope="colgroup" colspan="3" class="grupo esq">{{ rotulos().esq }}</th>
+            <th scope="colgroup" colspan="3" class="grupo dir">{{ rotulos().dir }}</th>
+            <td colspan="3"></td>
+          </tr>
           <tr>
             <th scope="col">Recorte</th>
-            <th scope="col">{{ rotulos().esq }} de</th>
-            <th scope="col">{{ rotulos().esq }} para</th>
-            <th scope="col">Variação (pp)</th>
-            <th scope="col">Peso no total</th>
-            <th scope="col">Contribuição</th>
-            <th scope="col">Δ comparecimento</th>
+            <th scope="col">de</th>
+            <th scope="col">para</th>
+            <th scope="col">variação</th>
+            <th scope="col">de</th>
+            <th scope="col">para</th>
+            <th scope="col">variação</th>
+            <th scope="col">Peso</th>
+            <th scope="col">Contrib.</th>
+            <th scope="col">Δ compar.</th>
           </tr>
         </thead>
         <tbody>
@@ -172,8 +190,13 @@
               <th scope="row">{{ i.nome }}</th>
               <td>{{ i.pct_esq_de | number:'1.2-2' }}%</td>
               <td>{{ i.pct_esq_para | number:'1.2-2' }}%</td>
-              <td [class.pos]="i.swing_esq >= 0" [class.neg]="i.swing_esq < 0">
+              <td class="var">
                 {{ i.swing_esq > 0 ? '+' : '' }}{{ i.swing_esq | number:'1.2-2' }}
+              </td>
+              <td class="sep">{{ i.pct_dir_de | number:'1.2-2' }}%</td>
+              <td>{{ i.pct_dir_para | number:'1.2-2' }}%</td>
+              <td class="var">
+                {{ i.swing_dir > 0 ? '+' : '' }}{{ i.swing_dir | number:'1.2-2' }}
               </td>
               <td>{{ i.peso | number:'1.2-2' }}%</td>
               <td>{{ i.contribuicao > 0 ? '+' : '' }}{{ i.contribuicao | number:'1.3-3' }} pp</td>
@@ -192,5 +215,8 @@
     <strong>Variação</strong> é a diferença em pontos percentuais do candidato entre os
     dois pleitos, sobre votos válidos. <strong>Contribuição</strong> é essa variação
     ponderada pelo peso do recorte no eleitorado — é ela que soma para o número nacional.
+    As duas variações <strong>não</strong> são simétricas quando o pleito de partida tem
+    outros candidatos: os votos deles se redistribuem, e os dois podem subir ao mesmo
+    tempo. A soma das variações é exatamente a fatia que esses candidatos tinham.
   </p>
 </footer>

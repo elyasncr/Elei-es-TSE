@@ -52,6 +52,9 @@ class LinhaSwing(BaseModel):
     pct_esq_de: float
     pct_esq_para: float
     swing_esq: float          # pontos percentuais ganhos pela esquerda
+    pct_dir_de: float
+    pct_dir_para: float
+    swing_dir: float          # idem para o adversario
     validos_de: int
     validos_para: int
     votos_esq_de: int
