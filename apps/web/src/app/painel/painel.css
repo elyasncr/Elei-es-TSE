@@ -35,6 +35,7 @@ h1 { font-size: 1.45rem; font-weight: 600; margin: 0 0 .2rem; letter-spacing: -.
              border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 1rem; }
 .controles label { display: flex; flex-direction: column; gap: .25rem; font-size: .78rem;
                    color: var(--text-secondary); }
+.controles select.largo { min-width: 15rem; }
 .controles select { font: inherit; font-size: .88rem; padding: .35rem .5rem;
                     background: var(--surface-0); color: var(--text-primary);
                     border: 1px solid var(--borda); border-radius: 5px; min-width: 9rem; }

@@ -215,6 +215,29 @@ atrasaria o primeiro render sem necessidade.
 degraus nomeáveis são lidos com mais precisão. A legenda rotula as **fronteiras**
 entre degraus, não cada degrau — metade do espaço, sem colisão de números.
 
+**Steps do tema escuro são próprios, não um flip dos claros.** Validados com
+`validate_palette.js --mode dark --ordinal`: matiz único, luminosidade monotônica,
+ΔL ≥ 0,06 entre vizinhos e o degrau mais fraco acima de 3:1 contra o fundo. A
+primeira versão ficava em 2,2:1 e os estados perto da divisa sumiam no preto.
+
+**Duas perguntas diferentes, dois mapas.** O seletor "Pintar o mapa por" alterna
+entre:
+
+- **Variação entre os pleitos** — para onde o eleitorado se moveu. Centro em 0.
+- **Resultado (chegada / partida)** — quem está à frente. Centro em 50%.
+
+Elas podem ter respostas opostas no mesmo estado, e isso não é contradição. No
+1º→2º turno de 2026 a variação foi positiva para Lula nos **28** recortes
+(+4,50 a +9,28 pp), e ainda assim Flávio venceu em **14 estados**: em SP, Lula
+subiu +7,96 pp e fechou em 46,15%. Um mapa só de variação fica inteiro vermelho
+e esconde exatamente isso.
+
+**Sem degrau neutro quando o centro é uma divisa.** Na variação, "perto de zero"
+é uma categoria real (não mudou), então existe um degrau cinza. No resultado, 50%
+é uma divisa categórica — um degrau neutro em volta dela pintaria de cinza
+justamente as disputas apertadas, que são as mais interessantes. Com a banda, 4
+estados saíam cinza; sem ela, os 27 se dividem em 14 azuis e 13 vermelhos.
+
 **A escala do mapa se adapta ao recorte.** Ao entrar no Paraná, ela é
 recalculada sobre os municípios paranaenses (±10,4 pp), não sobre o Brasil
 (±3,3 pp). Sem isso o estado inteiro sairia de uma cor só.

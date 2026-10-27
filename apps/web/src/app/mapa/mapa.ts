@@ -1,7 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, input, output, signal } from '@angular/core';
 import { Malha } from '../core/geo';
-import { ItemDecomposicao } from '../core/modelos';
+import { ItemDecomposicao, Metrica } from '../core/modelos';
 import { escalaAuto } from './escala';
 
 @Component({
@@ -17,6 +17,7 @@ export class Mapa {
   rotuloEsq = input('Esquerda');
   rotuloDir = input('Direita');
   escuro = input(false);
+  metrica = input<Metrica>('variacao');
   podeEntrar = input(true);
 
   entrar = output<ItemDecomposicao>();
@@ -24,16 +25,35 @@ export class Mapa {
   hover = signal<ItemDecomposicao | null>(null);
   pos = signal({ x: 0, y: 0 });
 
-  escala = computed(() => escalaAuto(
-    [...this.valores().values()].map(i => i.swing_esq),
-    this.escuro(), this.rotuloEsq(), this.rotuloDir()));
+  /** Campo e centro de referência de cada métrica. */
+  private cfg = computed(() => {
+    switch (this.metrica()) {
+      case 'chegada': return { campo: (i: ItemDecomposicao) => i.pct_esq_para,
+                               centro: 50, sufixo: '%', neutro: false };
+      case 'partida': return { campo: (i: ItemDecomposicao) => i.pct_esq_de,
+                               centro: 50, sufixo: '%', neutro: false };
+      default:        return { campo: (i: ItemDecomposicao) => i.swing_esq,
+                               centro: 0, sufixo: 'pp', neutro: true };
+    }
+  });
+
+  escala = computed(() => {
+    const { campo, centro, sufixo, neutro } = this.cfg();
+    return escalaAuto([...this.valores().values()].map(campo),
+                      this.escuro(), this.rotuloEsq(), this.rotuloDir(),
+                      centro, sufixo, neutro);
+  });
+
+  unidade = computed(() => this.cfg().sufixo === '%'
+    ? `% dos votos válidos de ${this.rotuloEsq()}` : 'pontos percentuais');
 
   formas = computed(() => {
     const m = this.malha(); if (!m) return [];
     const vals = this.valores(); const { cor } = this.escala();
+    const { campo } = this.cfg();
     return m.formas.map(f => {
       const item = vals.get(f.codarea) ?? null;
-      return { ...f, item, cor: cor(item?.swing_esq) };
+      return { ...f, item, cor: cor(item ? campo(item) : null) };
     });
   });
 

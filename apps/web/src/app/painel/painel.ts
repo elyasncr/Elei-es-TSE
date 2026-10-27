@@ -5,7 +5,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { of, switchMap } from 'rxjs';
 import { Api, COMPARACOES, Filtro } from '../core/api';
 import { Geo } from '../core/geo';
-import { Comparacao, Decomposicao, ItemDecomposicao, Meta, Nivel } from '../core/modelos';
+import { Comparacao, Decomposicao, ItemDecomposicao, Meta, Metrica, Nivel } from '../core/modelos';
 import { Mapa } from '../mapa/mapa';
 
 @Component({
@@ -37,6 +37,13 @@ export class Painel {
   ordenarPor = signal<'swing' | 'contribuicao' | 'nome'>('swing');
   limite = signal(40);
   escuro = signal(false);
+  metrica = signal<Metrica>('variacao');
+
+  readonly metricas: { v: Metrica; r: string }[] = [
+    { v: 'variacao', r: 'Variação entre os pleitos' },
+    { v: 'chegada', r: 'Resultado — pleito de chegada' },
+    { v: 'partida', r: 'Resultado — pleito de partida' },
+  ];
 
   /** No mapa o nível é consequência do zoom: Brasil → UFs, dentro de uma UF → municípios. */
   nivel = computed<Nivel>(() =>

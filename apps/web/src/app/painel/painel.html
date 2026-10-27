@@ -76,6 +76,15 @@
     </select>
   </label>
 
+  @if (vista() === 'mapa') {
+    <label>
+      <span>Pintar o mapa por</span>
+      <select [ngModel]="metrica()" (ngModelChange)="metrica.set($event)" class="largo">
+        @for (m of metricas; track m.v) { <option [value]="m.v">{{ m.r }}</option> }
+      </select>
+    </label>
+  }
+
   <label>
     <span>Ordenar por</span>
     <select [ngModel]="ordenarPor()" (ngModelChange)="ordenarPor.set($event)">
@@ -96,7 +105,7 @@
 @if (vista() === 'mapa') {
   <app-mapa [malha]="malha()" [valores]="porCodigo()"
             [rotuloEsq]="rotulos().esq" [rotuloDir]="rotulos().dir"
-            [escuro]="escuro()" [podeEntrar]="!uf()"
+            [escuro]="escuro()" [podeEntrar]="!uf()" [metrica]="metrica()"
             (entrar)="entrarNoMapa($event)" />
 }
 

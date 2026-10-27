@@ -50,3 +50,8 @@ export interface Comparacao {
   ano_para: number; turno_para: number;
   descricao: string;
 }
+
+/** O que o mapa pinta. Variação responde "para onde o eleitorado se moveu";
+ *  resultado responde "quem está na frente" — são perguntas diferentes e
+ *  podem ter respostas opostas no mesmo recorte. */
+export type Metrica = 'variacao' | 'chegada' | 'partida';

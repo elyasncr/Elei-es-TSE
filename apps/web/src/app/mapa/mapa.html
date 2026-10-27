@@ -17,9 +17,15 @@
       <div class="tooltip" [style.left.px]="pos().x" [style.top.px]="pos().y">
         <strong>{{ h.nome }}</strong>
         <span class="l">{{ rotuloEsq() }}</span>
-        <span class="v">{{ h.pct_esq_de | number:'1.2-2' }}% → {{ h.pct_esq_para | number:'1.2-2' }}%</span>
+        <span class="v" [class.forte]="metrica() !== 'variacao'">
+          {{ h.pct_esq_de | number:'1.2-2' }}% → {{ h.pct_esq_para | number:'1.2-2' }}%
+        </span>
         <span class="l">variação</span>
-        <span class="v forte">{{ h.swing_esq > 0 ? '+' : '' }}{{ h.swing_esq | number:'1.2-2' }} pp</span>
+        <span class="v" [class.forte]="metrica() === 'variacao'">
+          {{ h.swing_esq > 0 ? '+' : '' }}{{ h.swing_esq | number:'1.2-2' }} pp
+        </span>
+        <span class="l">vencedor ali</span>
+        <span class="v">{{ h.pct_esq_para > 50 ? rotuloEsq() : rotuloDir() }}</span>
         <span class="l">peso no total</span>
         <span class="v">{{ h.peso | number:'1.2-2' }}%</span>
         @if (podeEntrar()) { <span class="dica">clique para abrir os municípios</span> }
@@ -38,5 +44,5 @@
     </span>
   }
   <span class="ponta">{{ escala().pontaDir }}</span>
-  <span class="unidade">pontos percentuais</span>
+  <span class="unidade">{{ unidade() }}</span>
 </div>

@@ -11,11 +11,15 @@
  *    classes fora e achataria todo o mapa num tom só.
  */
 
-// ramps de um matiz, claro -> escuro
+// Ramps de um matiz só, do fraco ao intenso. Os steps dark foram escolhidos
+// para a superfície escura (não são um flip dos claros) e validados com
+// `validate_palette.js --mode dark --ordinal`: luminosidade monotônica,
+// ΔL >= 0.06 entre degraus vizinhos e o degrau mais fraco acima de 3:1
+// contra o fundo — antes ele ficava em 2,2:1 e sumia no mapa.
 const SEQ_ESQ = ['#fdeceb', '#f8c4c3', '#ef9391', '#e05f5d', '#c22e2c'];
 const SEQ_DIR = ['#e8f1fd', '#bcd8f8', '#86b6ef', '#4a8ce3', '#205fb4'];
-const SEQ_ESQ_DARK = ['#4a2322', '#71302f', '#9c4240', '#c45653', '#e66767'];
-const SEQ_DIR_DARK = ['#16304d', '#1d4a7d', '#2868ad', '#3380d6', '#4a97ee'];
+const SEQ_ESQ_DARK = ['#8f4340', '#b35550', '#cf6d67', '#e58a80', '#f7aea5'];
+const SEQ_DIR_DARK = ['#24598f', '#3173b5', '#428fd8', '#62abf0', '#94c9fb'];
 
 const NEUTRO = '#eceae5', NEUTRO_DARK = '#35352f';
 const SEM_DADO = '#f6f5f2', SEM_DADO_DARK = '#232321';
@@ -34,10 +38,14 @@ export interface Escala {
   pontaEsq: string | null;
 }
 
-const fmt = (x: number) => (x > 0 ? '+' : '') + x.toFixed(1);
-
 export function escalaAuto(valores: number[], escuro: boolean,
-                           rotEsq: string, rotDir: string): Escala {
+                           rotEsq: string, rotDir: string,
+                           centro = 0, sufixo = 'pp',
+                           bandaNeutra = true): Escala {
+  // com centro 0 o sinal é informação ("+2,3 pp"); com centro 50 o número já é
+  // um percentual e o "+" só polui.
+  const fmt = (x: number) =>
+    (centro === 0 && x > 0 ? '+' : '') + x.toFixed(1) + (sufixo === '%' ? '%' : '');
   const semDado = escuro ? SEM_DADO_DARK : SEM_DADO;
   const seqEsq = escuro ? SEQ_ESQ_DARK : SEQ_ESQ;
   const seqDir = escuro ? SEQ_DIR_DARK : SEQ_DIR;
@@ -50,11 +58,11 @@ export function escalaAuto(valores: number[], escuro: boolean,
   }
 
   const min = Math.min(...v), max = Math.max(...v);
-  const divergente = min < 0 && max > 0;
+  const divergente = min < centro && max > centro;
 
   if (!divergente) {
     // um lado só: ramp sequencial sobre o intervalo real
-    const ramp = max > 0 ? seqEsq : seqDir;
+    const ramp = max > centro ? seqEsq : seqDir;
     const lo = Math.min(min, max), hi = Math.max(min, max);
     const passo = (hi - lo) / ramp.length || 1;
     const limites = ramp.slice(1).map((_, i) => lo + passo * (i + 1));
@@ -72,32 +80,57 @@ export function escalaAuto(valores: number[], escuro: boolean,
       borda: i < ramp.length - 1 ? fmt(limites[i]) : null,
     }));
     // na sequencial as pontas da legenda são os extremos, não dois candidatos
+    const forte = max > centro ? rotEsq : rotDir;
     return { cor, classes, divergente: false,
-             pontaEsq: max > 0 ? `${rotEsq} ganha menos` : `${rotDir} ganha mais`,
-             pontaDir: max > 0 ? `${rotEsq} ganha mais` : `${rotDir} ganha menos` };
+             pontaEsq: `menos ${forte}`, pontaDir: `mais ${forte}` };
   }
 
-  // divergente simétrica: mesma amplitude dos dois lados
-  const amp = Math.max(Math.abs(min), Math.abs(max));
+  // divergente simétrica em torno do centro: mesma amplitude dos dois lados
+  const amp = Math.max(Math.abs(min - centro), Math.abs(max - centro));
+  const b = (d: number) => fmt(centro + d);       // rótulo da fronteira
+
+  if (!bandaNeutra) {
+    // O centro é uma divisa categórica (50% = quem está à frente). Um degrau
+    // neutro em volta dele pintaria de cinza justamente as disputas apertadas,
+    // que são as que mais importam — então aqui a divisa é nítida.
+    const cortes = [0.35, 0.7].map(f => +(f * amp).toFixed(2));
+    const [c1, c2] = cortes;
+    const cor = (x: number | null | undefined) => {
+      if (x === null || x === undefined || !Number.isFinite(x)) return semDado;
+      const dx = x - centro, a = Math.abs(dx);
+      const ramp = dx > 0 ? seqEsq : seqDir;
+      return a < c1 ? ramp[1] : a < c2 ? ramp[3] : ramp[4];
+    };
+    const classes: Classe[] = [
+      { cor: seqDir[4], rotulo: `até ${b(-c2)}`, borda: b(-c2) },
+      { cor: seqDir[3], rotulo: `${b(-c2)} a ${b(-c1)}`, borda: b(-c1) },
+      { cor: seqDir[1], rotulo: `${b(-c1)} a ${b(0)}`, borda: b(0) },
+      { cor: seqEsq[1], rotulo: `${b(0)} a ${b(c1)}`, borda: b(c1) },
+      { cor: seqEsq[3], rotulo: `${b(c1)} a ${b(c2)}`, borda: b(c2) },
+      { cor: seqEsq[4], rotulo: `${b(c2)} ou mais`, borda: null },
+    ];
+    return { cor, classes, divergente: true,
+             pontaEsq: `${rotDir} à frente`, pontaDir: `${rotEsq} à frente` };
+  }
+
   const cortes = [0.12, 0.4, 0.72].map(f => +(f * amp).toFixed(2));
   const cor = (x: number | null | undefined) => {
     if (x === null || x === undefined || !Number.isFinite(x)) return semDado;
-    const a = Math.abs(x);
+    const dx = x - centro, a = Math.abs(dx);
     if (a < cortes[0]) return neutro;
-    const ramp = x > 0 ? seqEsq : seqDir;
+    const ramp = dx > 0 ? seqEsq : seqDir;
     return a < cortes[1] ? ramp[2] : a < cortes[2] ? ramp[3] : ramp[4];
   };
-  const n = (x: number) => x.toFixed(1);
   const [c0, c1, c2] = cortes;
   const classes: Classe[] = [
-    { cor: seqDir[4], rotulo: `≤ −${n(c2)}`, borda: `−${n(c2)}` },
-    { cor: seqDir[3], rotulo: `−${n(c2)} a −${n(c1)}`, borda: `−${n(c1)}` },
-    { cor: seqDir[2], rotulo: `−${n(c1)} a −${n(c0)}`, borda: `−${n(c0)}` },
-    { cor: neutro, rotulo: `±${n(c0)}`, borda: `+${n(c0)}` },
-    { cor: seqEsq[2], rotulo: `${n(c0)} a ${n(c1)}`, borda: `+${n(c1)}` },
-    { cor: seqEsq[3], rotulo: `${n(c1)} a ${n(c2)}`, borda: `+${n(c2)}` },
-    { cor: seqEsq[4], rotulo: `≥ ${n(c2)}`, borda: null },
+    { cor: seqDir[4], rotulo: `até ${b(-c2)}`, borda: b(-c2) },
+    { cor: seqDir[3], rotulo: `${b(-c2)} a ${b(-c1)}`, borda: b(-c1) },
+    { cor: seqDir[2], rotulo: `${b(-c1)} a ${b(-c0)}`, borda: b(-c0) },
+    { cor: neutro, rotulo: `${b(-c0)} a ${b(c0)}`, borda: b(c0) },
+    { cor: seqEsq[2], rotulo: `${b(c0)} a ${b(c1)}`, borda: b(c1) },
+    { cor: seqEsq[3], rotulo: `${b(c1)} a ${b(c2)}`, borda: b(c2) },
+    { cor: seqEsq[4], rotulo: `${b(c2)} ou mais`, borda: null },
   ];
   return { cor, classes, divergente: true,
-           pontaEsq: `${rotDir} ganha`, pontaDir: `${rotEsq} ganha` };
+           pontaEsq: `${rotDir} à frente`, pontaDir: `${rotEsq} à frente` };
 }
