@@ -3,6 +3,37 @@
 Estudo sobre a **progressão da apuração**: prever o resultado final de uma eleição
 a partir de uma apuração parcial.
 
+
+## A aplicação
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/mapa-resultado-dark.png">
+  <img src="docs/img/mapa-resultado-light.png" alt="Mapa do Brasil por estado, colorido por quem venceu o 2º turno de 2026: Nordeste e parte do Norte com Lula, Sul e Centro-Oeste com Flávio Bolsonaro. Acima, três cartões mostram a variação de cada candidato entre os turnos e a soma delas.">
+</picture>
+
+Mapa coroplético com as malhas oficiais do IBGE. Passe o mouse para o detalhe,
+clique num estado para entrar nos municípios. Os cartões mostram a variação dos
+**dois** candidatos — entre 1º e 2º turno elas não são simétricas, e a soma é a
+fatia que os eliminados tinham.
+
+### Drill-down por município
+
+![Mapa de São Paulo com seus 645 municípios coloridos individualmente; a trilha de navegação mostra "Brasil › SP" e os cartões foram recalculados para o estado](docs/img/mapa-municipios.png)
+
+Clicar no estado troca a malha (carregada sob demanda) e recalcula a escala de
+cor para o contexto local — sem isso o estado inteiro sairia de uma cor só.
+
+### Variação dos dois candidatos
+
+![Tabela com colunas agrupadas por candidato, cada grupo com percentual de partida, de chegada e variação, mais peso do recorte, contribuição e variação de comparecimento](docs/img/tabela.png)
+
+### Vista em lista
+
+![Gráfico de barras divergentes comparando o 2º turno de 2022 com o de 2026 por estado, com ganhos em vermelho à direita e perdas em azul à esquerda](docs/img/lista-barras.png)
+
+Quando a comparação tem ganhos *e* perdas, as barras viram divergentes com o zero
+no centro; quando todos vão para o mesmo lado, ancoram na borda.
+
 ## Dados
 
 Boletins de Urna (BU Web) do TSE — 1 registro por seção eleitoral, com o campo
